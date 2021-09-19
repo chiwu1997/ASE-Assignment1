@@ -20,7 +20,7 @@ class Gameboard():
             return False, "Draw", None
 
         if not self.is_current_turn(player):   # player need to take turns to move
-            return True, "", "Not you turn".format(player)
+            return True, "", "Not your turn".format(player)
         
         if self.is_column_full(col):   # check whether the column is full
             return True, "", "The column is full"
