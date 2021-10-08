@@ -55,9 +55,13 @@ Assign player1 their color
 @app.route('/p1Color', methods=['GET'])
 def player1_config():
     global game
+    if game and game.player2:
+        return render_template('player1_connect.html', status="Color picked")
+
     if not game:
         game = Gameboard()
         current_state = db.getMove()
+        print(current_state[3])
         if current_state:
             game.current_turn = current_state[0]
             game.board = loads(current_state[1])
