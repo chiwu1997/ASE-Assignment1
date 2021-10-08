@@ -1,4 +1,5 @@
-# import db
+import db
+from json import dumps
 
 
 class Gameboard():
@@ -55,6 +56,8 @@ class Gameboard():
         # update the status and continue the game
         self.current_turn = "p2" if self.current_turn == "p1" else "p1"
         self.remaining_moves -= 1
+        db.add_move((self.current_turn, dumps(self.board), self.game_result,
+                    self.player1, self.player2, self.remaining_moves))
         # edge case for the last move
         if self.is_draw():
             return False, "Draw", None

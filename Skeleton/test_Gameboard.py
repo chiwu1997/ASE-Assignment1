@@ -1,5 +1,6 @@
 import unittest
 from Gameboard import Gameboard
+import db
 
 
 class Test_TestGameboard(unittest.TestCase):
@@ -7,6 +8,10 @@ class Test_TestGameboard(unittest.TestCase):
         self.game = Gameboard()
         self.game.player1 = "red"
         self.game.player2 = "yellow"
+        db.init_db()
+
+    def tearDown(self):
+        db.clear()
 
     def test_valid_move(self):
         # 1. Check happy path for correct move

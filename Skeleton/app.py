@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 # from flask import redirect
-# from json import dump
+from json import loads
 from Gameboard import Gameboard
-# import db
+import db
 import logging
 
 
@@ -24,6 +24,8 @@ Initial Webpage where gameboard is initialized
 @app.route('/', methods=['GET'])
 def player1_connect():
     global game
+    db.clear()
+    db.init_db()
     game = Gameboard()   # initialization for a new game
     return render_template('player1_connect.html', status="Pick a Color.")
 
@@ -53,8 +55,21 @@ Assign player1 their color
 @app.route('/p1Color', methods=['GET'])
 def player1_config():
     global game
-    color = request.args.get('color')   # get color from HTTP argument
-    game.player1 = color                # set up player1's color
+    if not game:
+        game = Gameboard()
+        current_state = db.getMove()
+        if current_state:
+            game.current_turn = current_state[0]
+            game.board = loads(current_state[1])
+            game.winner = current_state[2]
+            game.player1 = current_state[3]
+            game.player2 = current_state[4]
+            game.remaining_moves = current_state[5]
+
+    else:
+        color = request.args.get('color')   # get color from HTTP argument
+        game.player1 = color                # set up player1's color
+
     return render_template('player1_connect.html', status="Color picked")
 
 
@@ -71,12 +86,24 @@ Assign player2 their color
 @app.route('/p2Join', methods=['GET'])
 def p2Join():
     global game
-    # if p1 didn't pick a color -> Error
-    if game.player1 == "":
-        return 'Player1 should pick a color first!'
+    if not game:
+        game = Gameboard()
+        current_state = db.getMove()
+        if current_state:
+            game.current_turn = current_state[0]
+            game.board = loads(current_state[1])
+            game.winner = current_state[2]
+            game.player1 = current_state[3]
+            game.player2 = current_state[4]
+            game.remaining_moves = current_state[5]
 
-    # set up player2's color
-    game.player2 = "yellow" if game.player1 == "red" else "red"
+    else:
+        # if p1 didn't pick a color -> Error
+        if game.player1 == "":
+            return 'Player1 should pick a color first!'
+
+        # set up player2's color
+        game.player2 = "yellow" if game.player1 == "red" else "red"
 
     return render_template('p2Join.html')
 
