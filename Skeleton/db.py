@@ -32,7 +32,24 @@ Insert Tuple into table
 
 
 def add_move(move):  # will take in a tuple
-    pass
+    conn = sqlite3.connect('sqlite_db')
+    cursor = conn.execute("SELECT current_turn from GAME")
+
+    if len(list(cursor)) >= 1:
+        conn.execute('DELETE FROM GAME;')
+
+    interQuery = 'INSERT INTO GAME (current_turn, board, winner,' + \
+                 'player1, player2, remaining_moves)' + \
+                 'VALUES ("{}", ?, "{}", "{}", "{}", {})'
+
+    interQuery = interQuery.format(
+                    move[0], move[2],
+                    move[3], move[4], move[5])
+
+    conn.execute(interQuery, (move[1],))
+
+    conn.commit()
+    conn.close()
 
 
 '''
@@ -44,7 +61,21 @@ return (current_turn, board, winner, player1, player2, remaining_moves)
 def getMove():
     # will return tuple(current_turn, board, winner, player1, player2,
     # remaining_moves) or None if db fails
-    pass
+    conn = None
+    try:
+        conn = sqlite3.connect('sqlite_db')
+        cursor = conn.execute("SELECT current_turn, board, winner, player1," +
+                              "player2, remaining_moves from GAME")
+
+        for row in cursor:
+            return row
+
+    except Error:
+        return None
+
+    finally:
+        if conn:
+            conn.close()
 
 
 '''
@@ -65,3 +96,17 @@ def clear():
     finally:
         if conn:
             conn.close()
+
+
+# init_db()
+# move = ('p1', str(((0 for x in range(7)) for y in range(6))),
+#         "", "red", "yellow", 42)
+# add_move(move)
+# print(getMove())
+
+# move = ('p2', str(((0 for x in range(7)) for y in range(6))),
+#         "", "red", "yellow", 41)
+# add_move(move)
+# print(getMove())
+
+# clear()
